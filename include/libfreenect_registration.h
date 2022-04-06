@@ -118,7 +118,7 @@ FREENECTAPI int freenect_destroy_registration(freenect_registration* reg);
 // convenience function to convert a single x-y coordinate pair from camera
 // to world coordinates
 FREENECTAPI void freenect_camera_to_world(freenect_device* dev,
-	int cx, int cy, int wz, double* wx, double* wy);
+	uint16_t* cx, uint16_t* cy, int16_t* wz, float* wx, float* wy);
 
 // helper function to map one FREENECT_VIDEO_RGB image to a FREENECT_DEPTH_MM
 // image (inverse mapping to FREENECT_DEPTH_REGISTERED, which is depth -> RGB)

@@ -128,7 +128,7 @@ FREENECTAPI_SYNC int freenect_sync_set_led(freenect_led_options led, int index);
         Nonzero on error.
 */
 
-FREENECTAPI_SYNC int freenect_sync_camera_to_world(int cx, int cy, int wz, double* wx, double* wy, int index);
+FREENECTAPI_SYNC int freenect_sync_camera_to_world(uint16_t* cx, uint16_t* cy, int16_t* wz, float* wx, float* wy, int index);
 /*  Camera to world mapping, starts the runloop if it isn't running
 
     Wraps libfreenect_registration.h function of same name.

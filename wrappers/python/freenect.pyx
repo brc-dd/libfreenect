@@ -137,7 +137,7 @@ cdef extern from "libfreenect_sync.h":
     int freenect_sync_get_video(void **video, uint32_t *timestamp, int index, freenect_video_format fmt) nogil
     int freenect_sync_get_depth(void **depth, uint32_t *timestamp, int index, freenect_depth_format fmt) nogil
     void freenect_sync_stop()
-
+    int freenect_sync_camera_to_world(uint16_t* cx, uint16_t* cy, int16_t* wz, float* wx, float* wy, int index)
 
 VIDEO_RGB = FREENECT_VIDEO_RGB
 VIDEO_BAYER = FREENECT_VIDEO_BAYER
@@ -546,6 +546,44 @@ def sync_get_video(index=0, format=VIDEO_RGB):
         return PyArray_SimpleNewFromData(2, dims, npc.NPY_UINT16, data), timestamp
     else:
         raise TypeError('Conversion not implemented for type [%d]' % (format))
+
+
+def depth_to_xy(depth_image, index=0):
+    depth_y = 480
+    depth_x = 640
+
+    cdef npc.npy_intp dims[3]
+    cdef npc.npy_float _y[480 * 640]
+    cdef npc.npy_float _x[480 * 640]
+    cdef npc.npy_int16 _z[480 * 640]
+    cdef npc.npy_uint16 _px[480 * 640]
+    cdef npc.npy_uint16 _py[480 * 640]
+    cdef int _index = index
+    cdef npc.npy_float _xyz[480 * 640 * 3]
+
+    for py in range(0, depth_y):
+        for px in range(0, depth_x):
+
+            z = depth_image[py][px]
+            _z[py * depth_x + px] = z
+            _px[py * depth_x + px] = px
+            _py[py * depth_x + px] = py
+
+    freenect_sync_camera_to_world(_px, _py, _z, _x, _y, _index)
+
+    for py in range(0, depth_y):
+        for px in range(0, depth_x):
+
+            _xyz[py * depth_x * 3 + px * 3] = _x[py * depth_x + px]
+            _xyz[py * depth_x * 3 + px * 3 + 1] = _y[py * depth_x + px]
+            _xyz[py * depth_x * 3 + px * 3 + 2] = _z[py * depth_x + px]
+
+    dims[0], dims[1], dims[2] = depth_y, depth_x, 3
+
+    xyz_arr = PyArray_SimpleNewFromData(3, dims, npc.NPY_FLOAT, _xyz)
+    xyz = np.copy(xyz_arr)
+
+    return xyz
 
 
 def sync_stop():

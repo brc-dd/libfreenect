@@ -435,7 +435,7 @@ int freenect_sync_set_led(freenect_led_options led, int index) {
 	return 0;
 }
 
-int freenect_sync_camera_to_world(int cx, int cy, int wz, double* wx, double* wy, int index) {
+int freenect_sync_camera_to_world(uint16_t* cx, uint16_t* cy, int16_t* wz, float* wx, float* wy, int index) {
 	if (runloop_enter(index)) return -1;
 	freenect_camera_to_world(kinects[index]->dev, cx, cy, wz, wx, wy);
 	runloop_exit();
